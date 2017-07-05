@@ -9,10 +9,16 @@ class MapComponent {
             "esri/WebMap",
             "esri/views/MapView",
 
+            "esri/widgets/ScaleBar",
+
             "dojo/domReady!"
-        ], 
-        
-        (WebMap, MapView) => {
+        ], (
+            WebMap, 
+            MapView,
+
+            ScaleBar
+            
+        ) => {
             // Load the NZ Brew Web map.
             // http://gbs.maps.arcgis.com/home/item.html?id=1d52abc39f2f412bb3ff0e6407796d7c.
             var map = new WebMap({
@@ -21,9 +27,19 @@ class MapComponent {
                 }
             });
 
-            new MapView({
+            var view = new MapView({
                 container: domContainerId,
-                map: map
+                map
+            });
+
+            // Add the scalebar widget to our map view.
+            var scaleBar = new ScaleBar({
+                view,
+                unit: "dual"
+            });
+
+            view.ui.add(scaleBar, {
+                position: "bottom-left"
             });
         });
     }
