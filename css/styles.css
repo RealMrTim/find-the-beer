@@ -2,3 +2,10 @@ html, body, #map-container {
     height: 100%;
     width: 100%;
 }
+
+button {
+    position: absolute;
+    top: 15px;
+    left: 80px;
+    z-index: 100;
+}
