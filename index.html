@@ -7,9 +7,12 @@
   <title>Find the Beer!</title>
   <meta name="description" content="Find the Beer">
   <meta name="author" content="Tim Ruddell">
+  <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no">
 
-  <link rel="stylesheet" href="css/reset.css?">
+  <link rel="stylesheet" href="css/reset.css">
   <link rel="stylesheet" href="css/styles.css">
+
+  <link rel="stylesheet" href="https://js.arcgis.com/4.3/esri/css/main.css">
 
   <!--[if lt IE 9]>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv.js"></script>
@@ -17,7 +20,10 @@
 </head>
 
 <body>
-    <p>Hello world! Let's find the beer!</p>
+    <div id="map-container"></div>
+
+    <script src="https://js.arcgis.com/4.3/"></script>
+    <script src="js/component.map.js"></script>
     <script src="js/application.js"></script>
 </body>
 </html>

@@ -1,9 +1,13 @@
+const MAP_CONTAINER_ID = "map-container";
+
 //
 // Entry point for client application.
 //
 class Application {
+
     static run () {
-        console.log("Hello world!");
+        // Create a new MapComponent.
+        var _mapComponent = new MapComponent(MAP_CONTAINER_ID);
     }
 }
 
