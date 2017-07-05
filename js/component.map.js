@@ -2,8 +2,6 @@
 const MAP_ID = "1d52abc39f2f412bb3ff0e6407796d7c";
 // Map feature service endpoint.
 const MAP_QUERY_LAYER_URL = "http://services.arcgis.com/XTtANUDT8Va4DLwI/arcgis/rest/services/NZBrewLocation/FeatureServer/0";
-// The field ID to query for feature names.
-const MAP_QUERY_FIELD_NAME = "Brewery"
 
 //
 // The application map component. Currently wraps ArcGIS map functionality.
@@ -46,38 +44,21 @@ class MapComponent {
                 position: "bottom-left"
             });
 
-            this._view = view;
-        });
-    }
-
-    // Query the map layer for the passed feature name.
-    queryFeatureName (featureName) {
-        return new Promise((resolve, reject) => {
+            // Add our custom widget to the page.
             require([
-                "esri/tasks/QueryTask",
-                "esri/tasks/support/Query",
-            ],
-            
-            (QueryTask, Query) => {
-
-                var task = new QueryTask({
-                    url: MAP_QUERY_LAYER_URL
+                "widgets/findTheBeer"
+            ], function(
+                FindTheBeer
+            ) {
+                var widget = new FindTheBeer({ 
+                    view,
+                    mapQueryLayerUrl: MAP_QUERY_LAYER_URL
                 });
-                
-                var query = new Query();
-                query.where = `${MAP_QUERY_FIELD_NAME} = '${featureName}'`;
-                query.returnGeometry = true;
 
-                task.execute(query).then((result) => resolve(result));
+                view.ui.add(widget, "top-left");
             });
-        });
-    }
 
-    // Zoom to the passed map feature.
-    zoomToFeature (feature) {
-        this._view.goTo({
-            target: feature.geometry,
-            zoom: 14
+            this._view = view;
         });
     }
 }
