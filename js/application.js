@@ -1,4 +1,5 @@
 const MAP_CONTAINER_ID = "map-container";
+const WIDGET_CONTAINER_ID = "widget-findthebeer-container";
 
 //
 // Entry point for client application.
@@ -8,6 +9,17 @@ class Application {
     static run () {
         // Create a new MapComponent.
         this._mapComponent = new MapComponent(MAP_CONTAINER_ID);
+
+        // Add our custom widget to the page.
+        require([
+            "widgets/findTheBeer"
+        ], function(
+            FindTheBeer
+        ) {
+            var widget = new FindTheBeer({
+                container: WIDGET_CONTAINER_ID
+            });
+        });
     }
 
     static findTheBeer () {
