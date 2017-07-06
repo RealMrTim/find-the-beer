@@ -46,13 +46,16 @@ class MapComponent {
 
             // Add our custom widget to the page.
             require([
-                "widgets/findTheBeer"
+                "widgets/LayerFeatureLocator"
             ], function(
-                FindTheBeer
+                LayerFeatureLocator
             ) {
-                var widget = new FindTheBeer({ 
+                var widget = new LayerFeatureLocator({ 
                     view,
-                    mapQueryLayerUrl: MAP_QUERY_LAYER_URL
+                    mapQueryLayerUrl: MAP_QUERY_LAYER_URL,
+                    widgetLabel: "NZ Breweries",
+                    featureIdField: "OBJECTID",
+                    featureLabelField: "Brewery"
                 });
 
                 view.ui.add(widget, "top-right");

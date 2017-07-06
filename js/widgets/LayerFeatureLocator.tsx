@@ -7,9 +7,6 @@ import QueryTask = require("esri/tasks/QueryTask");
 import Query = require("esri/tasks/support/Query");
 import FeatureSet = require("esri/tasks/support/FeatureSet");
 
-// The field ID to query for feature names.
-const MAP_QUERY_FIELD_NAME = "Brewery";
-
 // Using ESRI's builtin styles for the button.
 const CSS = {
     base: "esri-layer-list esri-widget",
@@ -36,23 +33,35 @@ const CSS = {
 };
 
 // Expected format of arguments supplied to our widget.
-type WidgetParams = { 
+type LayerFeatureLocatorParams = { 
     // MapView for the widget to control.
     view: MapView,
 
     // Layer service for the widget to operate on.
-    mapQueryLayerUrl: string
+    mapQueryLayerUrl: string,
+
+    // Widget label to display.
+    widgetLabel: string,
+
+    // The ID field of the layer's features.
+    featureIdField: string,
+
+    // The label field of the layer's features.
+    featureLabelField: string
 };
 
 /**
- * Custom widget to find the beer.
+ * Displays features of a layer and locates them when clicked.
  * 
  */
-@subclass("tim.widgets.FindTheBeer")
-class FindTheBeer extends declared(Widget) {
+@subclass("tim.widgets.LayerFeatureLocator")
+class LayerFeatureLocator extends declared(Widget) {
 
     private _view : MapView;
     private _mapQueryLayerUrl : string;
+    private _widgetLabel : string;
+    private _featureIdField : string;
+    private _featureLabelField : string;
 
     private _featureListExpanded = false;
     private _featureListLoaded = false;
@@ -60,54 +69,26 @@ class FindTheBeer extends declared(Widget) {
     private _layerFeatureSet : FeatureSet;
 
 
-    constructor(params? : WidgetParams) {
+    constructor(params? : LayerFeatureLocatorParams) {
         super();
 
         this._view = params.view;
         this._mapQueryLayerUrl = params.mapQueryLayerUrl;
+        this._widgetLabel = params.widgetLabel;
+        this._featureIdField = params.featureIdField;
+        this._featureLabelField = params.featureLabelField;
     }
 
-    // Finds and locates the beer on the provided MapView.
-    private _findTheBeer() {
-        this._queryFeatureName("Deep Creek Brewery")
-            .then((result : FeatureSet) => {
-                if (result.features.length == 0) {
-                    console.warn("No features returned from query.");
-                } else {
-                    // Assuming the first feature is correct.
-                    var feature = result.features[0];
-
-                    // Zoom to the passed map feature.
-                    this._view.goTo({
-                        target: feature.geometry,
-                        zoom: 15
-                    });
-                }
-        });
-    }
-
-    // Query the map layer for the passed feature name.
-    private _queryFeatureName (featureName : string) {
-
-        var task = new QueryTask({
-            url: this._mapQueryLayerUrl
-        });
-
-        var query = new Query();
-        query.where = `${MAP_QUERY_FIELD_NAME} = '${featureName}'`;
-        query.returnGeometry = true;
-
-        return task.execute(query)
-    }
-
+    //
     // Queries for the entire feature list.
+    //
     loadFeatureList () {
         var task = new QueryTask({
             url: this._mapQueryLayerUrl
         });
 
         var query = new Query();
-        query.outFields = ["OBJECTID", "Brewery"];
+        query.outFields = [this._featureIdField, this._featureLabelField];
         query.where = '1 = 1'; // More elegent way to do this?
 
         task.execute(query).then((result : FeatureSet) => {
@@ -137,15 +118,21 @@ class FindTheBeer extends declared(Widget) {
                             <span aria-hidden="true" class={join(CSS.listChildClosed, CSS.iconRightArrow)} />
                             <span aria-hidden="true" class={join(CSS.listChildOpened, CSS.iconDownArrow)} />
                         </span>
-                        <p>Layer features</p>
+                        <p>{this._widgetLabel}</p>
                     </div>
                     <ul class={CSS.list} role="group" hidden={this._featureListExpanded ? null : true}>
                         {
                             this._featureListLoaded ?
                                 this._layerFeatureSet.features.map((item, key) => 
-                                    <li key={item.attributes["OBJECTID"]} class={join(CSS.listItem, CSS.action)} role="button">
+                                    <li key={item.getAttribute(this._featureIdField)} 
+                                            data-item={item}
+                                            parent={this}
+                                            da
+                                            class={join(CSS.listItem, CSS.action)} 
+                                            role="button" 
+                                            onclick={this._locateFeature}>
                                         <div class={CSS.listItemContainer}>
-                                            {item.attributes["Brewery"]}
+                                            {item.getAttribute(this._featureLabelField)}
                                         </div>
                                     </li>
                                 ) : (
@@ -164,7 +151,9 @@ class FindTheBeer extends declared(Widget) {
         );
     }
 
+    //
     // Toggle the visibility of the feature list.
+    //
     @accessibleHandler()
     private _toggleFeatureListVisible(event: Event): void {
         const node = event.currentTarget as Element;
@@ -177,6 +166,40 @@ class FindTheBeer extends declared(Widget) {
 
         item._featureListExpanded = !item._featureListExpanded;
     }
+
+    //
+    // Query the map layer for the passed feature ID.
+    //
+    @accessibleHandler()
+    private _locateFeature(event: Event): void {
+        const node = event.currentTarget as Element;
+        const item = node["data-item"];
+        const parent = node["parent"];
+
+        var task = new QueryTask({
+            url: parent._mapQueryLayerUrl
+        });
+
+        var query = new Query();
+        query.where = `${parent._featureIdField} = '${item.getAttribute(parent._featureIdField)}'`;
+        query.returnGeometry = true;
+
+        task.execute(query)
+            .then((result : FeatureSet) => {
+                if (result.features.length == 0) {
+                    console.warn("No features returned from query.");
+                } else {
+                    // Assuming the first feature is correct.
+                    var feature = result.features[0];
+
+                    // Zoom to the passed map feature.
+                    parent._view.goTo({
+                        target: feature.geometry,
+                        zoom: 14
+                    });
+                }
+        });
+    }
 }
 
-export = FindTheBeer;
+export = LayerFeatureLocator;
