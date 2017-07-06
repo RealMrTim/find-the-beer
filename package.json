@@ -8,7 +8,7 @@
     "@types/arcgis-js-api": "^4.3.1"
   },
   "scripts": {
-    "build:widgets": "tsc --project ./js/widgets/",
+    "build:widgets": "tsc -w --project ./js/widgets/",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "TR",

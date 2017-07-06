@@ -55,7 +55,7 @@ class MapComponent {
                     mapQueryLayerUrl: MAP_QUERY_LAYER_URL
                 });
 
-                view.ui.add(widget, "top-left");
+                view.ui.add(widget, "top-right");
             });
 
             this._view = view;
